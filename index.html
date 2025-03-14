@@ -3,24 +3,92 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MQTT Light Control</title>
+    <title>Light Control</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            flex-direction: column;
+        }
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+        }
+        .button-container {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        button {
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #3498db;
+            color: white;
+        }
+        .status {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+    </style>
 </head>
 <body>
-    <h2>Light Control</h2>
-    <button id="toggle-btn">Turn ON</button>
+
+    <h1>MQTT Light Control</h1>
+    
+    <div class="button-container">
+        <button id="on-btn">Turn ON</button>
+        <button id="off-btn">Turn OFF</button>
+    </div>
+    
+    <div class="status">
+        Last Command: <span id="status-msg">None</span>
+    </div>
 
     <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
     <script>
-        const client = mqtt.connect("ws://broker.hivemq.com:8000/mqtt");
-        const topic = "home/light";
-        let isOn = false;
+        // Connect to MQTT broker over WebSocket
+        const client = mqtt.connect('ws://broker.hivemq.com:8000/mqtt');
+        const topic = 'student_group/light_control';
 
-        document.getElementById("toggle-btn").addEventListener("click", () => {
-            isOn = !isOn;
-            const message = isOn ? "ON" : "OFF";
-            client.publish(topic, message);
-            document.getElementById("toggle-btn").innerText = isOn ? "Turn OFF" : "Turn ON";
+        // DOM elements
+        const statusMsg = document.getElementById('status-msg');
+        const onBtn = document.getElementById('on-btn');
+        const offBtn = document.getElementById('off-btn');
+
+        // Publish "ON" or "OFF" to MQTT topic on button click
+        onBtn.addEventListener('click', () => {
+            client.publish(topic, 'ON');
+            statusMsg.textContent = 'Light ON';
         });
+
+        offBtn.addEventListener('click', () => {
+            client.publish(topic, 'OFF');
+            statusMsg.textContent = 'Light OFF';
+        });
+
+        // Connect to MQTT broker
+        client.on('connect', () => {
+            console.log('Connected to MQTT broker');
+        });
+
+        // Handle incoming messages (if needed)
+        client.on('message', (topic, message) => {
+            console.log(`Message received: ${message.toString()}`);
+        });
+
     </script>
+
 </body>
 </html>
