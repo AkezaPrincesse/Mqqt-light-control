@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MQTT Light Control</title>
+</head>
+<body>
+    <h2>Light Control</h2>
+    <button id="toggle-btn">Turn ON</button>
+
+    <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+    <script>
+        const client = mqtt.connect("ws://broker.hivemq.com:8000/mqtt");
+        const topic = "home/light";
+        let isOn = false;
+
+        document.getElementById("toggle-btn").addEventListener("click", () => {
+            isOn = !isOn;
+            const message = isOn ? "ON" : "OFF";
+            client.publish(topic, message);
+            document.getElementById("toggle-btn").innerText = isOn ? "Turn OFF" : "Turn ON";
+        });
+    </script>
+</body>
+</html>
